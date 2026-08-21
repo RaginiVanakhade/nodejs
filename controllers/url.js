@@ -23,6 +23,18 @@ async function genrateUrl(req, res) {
     })
 }
 
+
+async function getAnalastic(req, res) {
+    const nanoid = req.params.nanoid
+    const result = await URL.findOne({
+        nanoid
+    })
+    return res.json({totalClicks : result.visitHistory.length,
+        analytics : result.visitHistory
+    })
+}
+
 module.exports = {
-    genrateUrl
+    genrateUrl,
+    getAnalastic
 }
