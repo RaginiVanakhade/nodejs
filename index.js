@@ -1,5 +1,6 @@
 const express = require("express")
 const urlRoute = require("./routes/url")
+const urlEjsTest = require("./routes/urlEjs")
 const {connectToMongoDB} = require("./connection")
 const URL = require("./models/url")
 
@@ -14,6 +15,7 @@ connectToMongoDB("mongodb://127.0.0.1:27017/short-url")
 
 
 app.use("/url", urlRoute)
+app.use("/ejstest", urlEjsTest)
 app.get('/:shortId', async (req, res) => {
     const shortId = req.params.shortId
   const entry =  await URL.findOneAndUpdate({
@@ -27,5 +29,8 @@ app.get('/:shortId', async (req, res) => {
     })
     res.redirect(entry.redirectURL)
 })
+
+
+
 
 app.listen(PORT, () => console.log(`server running on port http://localhost//${PORT}`))
