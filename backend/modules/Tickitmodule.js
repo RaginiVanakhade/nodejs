@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const ticketSchema = new mongoose.Schema(
     {
-        // title काढून टाकला आहे
-        description: { type: String, required: true }, // तक्रारीचं वर्णन
+       
+        description: { type: String, required: true }, 
         
-        softwareName: { type: String, required: true }, // सॉफ्टवेअरचं नाव (उदा. Zoom, VS Code)
-        softwareIssueComment: { type: String, default: "" }, // सॉफ्टवेअरमधील नेमकी अडचण
+        softwareName: { type: String, required: true }, 
+        softwareIssueComment: { type: String, default: "" }, 
         
         category: { type: String, default: "General" },
         priority: {
