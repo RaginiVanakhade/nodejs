@@ -1,14 +1,12 @@
-const express = require('express')
+const express = require("express")
 
-
-const app = express()
+const app =  express()
 
 app.get("/", (req, res) => {
-    console.log("hello nodejs")
-    res.json({title : "hello nodejs server is created"})
+    console.log(req.method)
+    res.json({name : "hello nodejs"})
 })
 
-
-app.listen(3001,() => {
-    console.log("server is created")
+app.listen(3001, () => {
+    console.log("server created✅")
 })
