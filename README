@@ -1,0 +1,55 @@
+AUTH
+POST   /api/auth/register
+POST   /api/auth/login
+GET    /api/auth/me
+
+
+TICKETS
+POST   /api/tickets
+GET    /api/tickets
+GET    /api/tickets/my
+GET    /api/tickets/:id
+PUT    /api/tickets/:id
+DELETE /api/tickets/:id
+
+PATCH  /api/tickets/:id/status
+PATCH  /api/tickets/:id/priority
+PATCH  /api/tickets/:id/assign
+
+
+COMMENTS
+GET    /api/tickets/:id/comments
+POST   /api/tickets/:id/comments
+
+
+CATEGORIES
+GET    /api/categories
+POST   /api/categories
+PUT    /api/categories/:id
+DELETE /api/categories/:id
+
+
+USERS
+GET    /api/users
+GET    /api/users/agents
+GET    /api/users/:id
+PUT    /api/users/:id
+PATCH  /api/users/:id/status
+
+
+DASHBOARD
+GET    /api/dashboard/user
+GET    /api/dashboard/admin
+
+
+NOTIFICATIONS
+GET    /api/notifications
+PATCH  /api/notifications/:id/read
+
+
+AUDIT
+GET    /api/tickets/:id/audit-logs
+
+
+ATTACHMENTS
+POST   /api/tickets/:id/attachments
