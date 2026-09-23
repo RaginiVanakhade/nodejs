@@ -2,6 +2,7 @@ const express = require("express")
 const dotenv = require("dotenv");
 const connectDB = require("./config/dbconnection");
 const userRoutes = require("./routes/UserRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 
 const app =  express()
@@ -11,11 +12,9 @@ connectDB()
 // Middleware
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    console.log(req.method)
-    res.json({name : "hello nodejs"})
-})
+// routes 
 app.use("/api", userRoutes);
+app.use("/api/auth", authRoutes)
 
 const PORT = process.env.PORT || 3001;
 
