@@ -25,6 +25,8 @@ router.post("/", authenticate, authorize("employee", "admin"), createTicket);
 // 2. Get My Tickets
 router.get("/my-tickets", authenticate, authorize("employee", "admin"), getMyTickets);
 
+router.get("/all", authenticate, authorize("admin"), getAllTicketsForAdmin);
+
 // 3. Get Single Ticket
 router.get("/:id", authenticate, authorize("employee", "admin"), getTicketById);
 
@@ -34,8 +36,9 @@ router.put("/:id", authenticate, authorize("employee", "admin"), updateTicket);
 // 5. Change Ticket Status (Close/Reopen)
 router.patch("/:id/status", authenticate, authorize("employee", "admin"), updateTicketStatus);
 
+
+
 // 6. Delete Ticket (Soft Delete)
 router.delete("/:id", authenticate, authorize("employee", "admin"), deleteTicket);
 
-router.get("/all", authenticate, authorize("admin"), getAllTicketsForAdmin);
 module.exports = router;
