@@ -9,7 +9,8 @@ const {
     getTicketById, 
     updateTicket, 
     updateTicketStatus, 
-    deleteTicket 
+    deleteTicket ,
+     getAllTicketsForAdmin
 } = require("../controllers/TickitController");
 
 
@@ -36,4 +37,5 @@ router.patch("/:id/status", authenticate, authorize("employee", "admin"), update
 // 6. Delete Ticket (Soft Delete)
 router.delete("/:id", authenticate, authorize("employee", "admin"), deleteTicket);
 
+router.get("/all", authenticate, authorize("admin"), getAllTicketsForAdmin);
 module.exports = router;

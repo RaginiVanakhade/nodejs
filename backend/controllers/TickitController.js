@@ -152,11 +152,29 @@ const deleteTicket = async (req, res) => {
     }
 };
 
+const getAllTicketsForAdmin = async (req, res) => {
+    try {
+     
+        const tickets = await Ticket.find({ isDeleted: false })
+            .populate("createdBy", "name email role") 
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ 
+            message: "All tickets fetched successfully",
+            totalTickets: tickets.length, 
+            tickets 
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createTicket,
     getMyTickets,
     getTicketById,
     updateTicket,
     updateTicketStatus,
-    deleteTicket
+    deleteTicket,
+    getAllTicketsForAdmin
 };
