@@ -3,10 +3,17 @@ const User = require("../modules/User");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
 
-// Create user
+// Create user (Public Registration)
 router.post("/user", async (req, res) => {
     try {
-        const { name, email, password, role } = req.body;
+        const { name, email, password, role } = req.body; // 👈 'role' पण घेत आहोत आता
+
+       
+        if (role === "admin") {
+            return res.status(403).json({
+                message: "Access denied. You cannot register as an admin."
+            });
+        }
 
         // Check email already exists
         const existingUser = await User.findOne({ email });
@@ -25,7 +32,7 @@ router.post("/user", async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: role || "employee"
+            role: "employee" 
         });
 
         res.status(201).json({
