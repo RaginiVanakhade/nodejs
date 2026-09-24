@@ -1,4 +1,4 @@
-import { base_url, adminData, userData } from "./apiendpoint"
+import { base_url, adminData, userData, createTickit } from "./apiendpoint"
 
 const getAuthHeader = (token) => {
   if (!token) {
@@ -67,6 +67,28 @@ export const deleteTicket = async (ticketId, token) => {
 
   if (!response.ok) {
     throw new Error(data.message || "Failed to delete ticket")
+  }
+
+  return data
+}
+
+export const createTicket = async (payload, token) => {
+  const response = await fetch(`${base_url}${createTickit}`, {
+    method: "POST",
+    headers: getAuthHeader(token),
+    body: JSON.stringify({
+      description: payload.description,
+      category: payload.category,
+      priority: payload.priority,
+      softwareName: payload.softwareName,
+      softwareIssueComment: payload.softwareIssueComment,
+    }),
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to create ticket")
   }
 
   return data
