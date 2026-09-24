@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { loginUser } from "../../services/authServices"
-
+import CustomBtn from "../../custom/Custombtn"
 const Login = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
@@ -79,24 +79,24 @@ const Login = () => {
 
           {error && <p className="text-sm font-medium text-red-600">{error}</p>}
 
-          <button
+          <CustomBtn
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-200 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
+           text= {loading ? "Logging in..." : "Login"}
+            className="w-full rounded-2xl cursor-pointer bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-200 disabled:cursor-not-allowed disabled:opacity-70"
+          />
+           
+          
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600">
           Don’t have an account?{' '}
-          <button
+          <CustomBtn
             type="button"
-            className="font-semibold text-indigo-600 transition hover:text-indigo-700"
+            className="font-semibold text-indigo-600 transition hover:text-indigo-700 cursor-pointer"
             onClick={() => navigate("/register")}
-          >
-            Register here
-          </button>
+            text="Register here"
+          />
         </p>
       </div>
     </div>

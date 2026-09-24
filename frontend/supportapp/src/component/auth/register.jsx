@@ -98,7 +98,7 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-2xl bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-violet-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-violet-200 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full rounded-2xl cursor-pointer bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-violet-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-violet-200 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {loading ? "Registering..." : "Register Here"}
           </button>
@@ -108,7 +108,7 @@ const Register = () => {
           Already have an account?{' '}
           <button
             type="button"
-            className="font-semibold text-violet-600 transition hover:text-violet-700"
+            className="font-semibold text-violet-600 transition hover:text-violet-700 cursor-pointer"
             onClick={() => navigate("/")}
           >
             Login here
