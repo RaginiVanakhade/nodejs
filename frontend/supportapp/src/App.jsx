@@ -1,18 +1,17 @@
 
 import './App.css'
 import {BrowserRouter, Routes, Route} from "react-router-dom"
-import Custombtn from './custom/custombtn'
-
+import Login from './component/auth/login'
 
 function App() {
 
 
   return (
     <>
-    <Custombtn/>
+  
   <BrowserRouter>
   <Routes>
-    <Route path='/' element="home page"/>
+    <Route path='/' element={<Login/>}/>
     <Route path='/about' element="about page"/>
   </Routes>
   </BrowserRouter>
