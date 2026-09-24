@@ -1,7 +1,37 @@
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { loginUser } from "../../services/authServices"
 
 const Login = () => {
   const navigate = useNavigate()
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+
+    try {
+      const response = await loginUser(formData)
+      alert(response.message || "Login successful")
+      localStorage.setItem("token", response.token)
+      navigate("/dashboard")
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-indigo-50 to-purple-50 p-6">
@@ -14,7 +44,7 @@ const Login = () => {
           <p className="mt-2 text-sm text-slate-500">Access your support dashboard</p>
         </div>
 
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="email" className="mb-2 block text-sm font-semibold text-slate-700">
               Email
@@ -24,7 +54,10 @@ const Login = () => {
               id="email"
               name="email"
               placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100"
+              required
             />
           </div>
 
@@ -37,15 +70,21 @@ const Login = () => {
               id="password"
               name="password"
               placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-100"
+              required
             />
           </div>
 
+          {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+
           <button
             type="submit"
-            className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-200"
+            disabled={loading}
+            className="w-full rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-200 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
