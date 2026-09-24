@@ -1,14 +1,48 @@
 import { useEffect, useState } from "react"
 import Navbar from "../component/Navbar"
-import { getUserDashboardData } from "../services/datasevices"
+import Module from "../component/module"
+import { createTicket, getUserDashboardData } from "../services/datasevices"
+import Custombtn from "../custom/Custombtn"
+
+const initialForm = {
+  description: "",
+  category: "",
+  priority: "HIGH",
+  softwareName: "",
+  softwareIssueComment: "",
+}
 
 const Dashboard = () => {
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [formData, setFormData] = useState(initialForm)
+  const [submitting, setSubmitting] = useState(false)
+
+//   const fetchUserTickets = async () => {
+//     try {
+//       setLoading(true)
+//       setError("")
+
+//       const token = localStorage.getItem("token")
+//       if (!token) {
+//         throw new Error("Authentication required")
+//       }
+
+//       const response = await getUserDashboardData(token)
+//       setTickets(response.tickets || [])
+//     } catch (err) {
+//       setError(err.message || "Unable to fetch your tickets")
+//     } finally {
+//       setLoading(false)
+//     }
+//   }
 
   useEffect(() => {
-    const fetchUserTickets = async () => {
+    let isMounted = true
+
+    const loadTickets = async () => {
       try {
         setLoading(true)
         setError("")
@@ -19,16 +53,55 @@ const Dashboard = () => {
         }
 
         const response = await getUserDashboardData(token)
-        setTickets(response.tickets || [])
+        if (isMounted) {
+          setTickets(response.tickets || [])
+        }
       } catch (err) {
-        setError(err.message || "Unable to fetch your tickets")
+        if (isMounted) {
+          setError(err.message || "Unable to fetch your tickets")
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
-    fetchUserTickets()
+    loadTickets()
+
+    return () => {
+      isMounted = false
+    }
   }, [])
+
+  const handleOpenModal = () => setIsModalOpen(true)
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setFormData(initialForm)
+  }
+
+  const handleSubmitTicket = async (e) => {
+    e.preventDefault()
+
+    try {
+      setSubmitting(true)
+      setError("")
+
+      const token = localStorage.getItem("token")
+      const response = await createTicket(formData, token)
+
+      if (response?.ticket) {
+        setTickets((prev) => [response.ticket, ...prev])
+      }
+
+      handleCloseModal()
+    } catch (err) {
+      setError(err.message || "Unable to create ticket")
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -43,6 +116,14 @@ const Dashboard = () => {
           <p className="mt-3 max-w-2xl text-slate-600">
             Manage support requests, track updates, and keep everything organized from one place.
           </p>
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <Custombtn
+            text="Request ticket"
+            onClick={handleOpenModal}
+            className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-md hover:bg-indigo-500"
+          />
         </div>
 
         <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -95,6 +176,15 @@ const Dashboard = () => {
           )}
         </div>
       </main>
+
+      <Module
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        formData={formData}
+        setFormData={setFormData}
+        onSubmit={handleSubmitTicket}
+        loading={submitting}
+      />
     </div>
   )
 }
