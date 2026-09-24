@@ -23,8 +23,21 @@ const Login = () => {
 
     try {
       const response = await loginUser(formData)
+      const userRole = response?.user?.role || JSON.parse(atob((response.token || '').split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))?.role
+
+      if (!response?.token || !userRole) {
+        throw new Error("Login failed. Invalid token or role.")
+      }
+
       alert(response.message || "Login successful")
       localStorage.setItem("token", response.token)
+      localStorage.setItem("role", userRole)
+
+      if (userRole === "admin") {
+        navigate("/admindashboard")
+        return
+      }
+
       navigate("/dashboard")
     } catch (err) {
       setError(err.message)
