@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react"
 import Navbar from "../component/Navbar"
 import Module from "../component/module"
-import { createTicket, getUserDashboardData, updateTicket } from "../services/datasevices"
+import {
+  createTicket,
+  deleteTicket,
+  getUserDashboardData,
+  updateTicket,
+} from "../services/datasevices"
 import Custombtn from "../custom/Custombtn"
 
 const initialForm = {
@@ -97,6 +102,20 @@ const Dashboard = () => {
     setIsModalOpen(false)
     setEditingTicketId(null)
     setFormData(initialForm)
+  }
+
+  const handleDeleteTicket = async (ticketId) => {
+    const confirmDelete = window.confirm("Delete this ticket?")
+    if (!confirmDelete) return
+
+    try {
+      const token = localStorage.getItem("token")
+      await deleteTicket(ticketId, token)
+      setTickets((prev) => prev.filter((ticket) => ticket._id !== ticketId))
+      setError("")
+    } catch (err) {
+      setError(err.message || "Unable to delete ticket")
+    }
   }
 
   const handleSubmitTicket = async (e) => {
@@ -201,13 +220,22 @@ const Dashboard = () => {
                       </td>
                       <td className="max-w-md px-4 py-3 text-slate-600">{ticket.description}</td>
                       <td className="px-4 py-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditModal(ticket)}
-                          className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
-                        >
-                          Edit
-                        </button>
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditModal(ticket)}
+                            className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteTicket(ticket._id)}
+                            className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

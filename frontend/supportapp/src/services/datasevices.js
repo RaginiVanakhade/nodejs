@@ -1,4 +1,11 @@
-import { base_url, adminData, userData, createTickit, updateTickit } from "./apiendpoint"
+import {
+  base_url,
+  adminData,
+  userData,
+  createTickit,
+  updateTickit,
+  deleteTickit,
+} from "./apiendpoint"
 
 const getAuthHeader = (token) => {
   if (!token) {
@@ -58,7 +65,7 @@ export const updateTicketStatus = async (ticketId, status, token) => {
 }
 
 export const deleteTicket = async (ticketId, token) => {
-  const response = await fetch(`${base_url}/api/tickets/${ticketId}`, {
+  const response = await fetch(`${base_url}${deleteTickit.replace(":id", ticketId)}`, {
     method: "DELETE",
     headers: getAuthHeader(token),
   })
