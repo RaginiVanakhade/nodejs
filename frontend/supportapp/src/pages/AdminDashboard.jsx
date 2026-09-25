@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react"
 import Navbar from "../component/Navbar"
 import {  getAdminDashboardData, updateTicketStatus } from "../services/datasevices"
 
+const ROWS_PER_PAGE = 5
+
 const AdminDashboard = () => {
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
@@ -11,6 +13,7 @@ const AdminDashboard = () => {
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [statusComment, setStatusComment] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("OPEN")
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     const fetchAdminData = async () => {
@@ -64,6 +67,13 @@ const AdminDashboard = () => {
       return new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
     })
   }, [searchTerm, sortBy, tickets])
+
+  const totalPages = Math.max(1, Math.ceil(filteredTickets.length / ROWS_PER_PAGE))
+  const safeCurrentPage = Math.min(currentPage, totalPages)
+  const paginatedTickets = filteredTickets.slice(
+    (safeCurrentPage - 1) * ROWS_PER_PAGE,
+    safeCurrentPage * ROWS_PER_PAGE
+  )
 
   const openTicketModal = (ticket) => {
     setSelectedTicket(ticket)
@@ -141,14 +151,20 @@ const AdminDashboard = () => {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
                 placeholder="Search user, email, software..."
                 className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-violet-500 focus:bg-white"
               />
 
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => {
+                  setSortBy(e.target.value)
+                  setCurrentPage(1)
+                }}
                 className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-violet-500 focus:bg-white"
               >
                 <option value="newest">Newest</option>
@@ -180,7 +196,7 @@ const AdminDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredTickets.map((ticket) => (
+                    {paginatedTickets.map((ticket) => (
                       <tr key={ticket._id} className="border-b border-slate-200 hover:bg-slate-50">
                         <td className="px-4 py-3">
                           <div className="font-medium text-slate-900">{ticket.createdBy?.name || "Unknown user"}</div>
@@ -224,6 +240,34 @@ const AdminDashboard = () => {
                   </tbody>
                 </table>
               </div>
+
+              {filteredTickets.length > ROWS_PER_PAGE && (
+                <div className="mt-5 flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-4 sm:flex-row">
+                  <p className="text-sm text-slate-600">
+                    Page {safeCurrentPage} of {totalPages}
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={safeCurrentPage === 1}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Prev
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={safeCurrentPage === totalPages}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {selectedTicket && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
