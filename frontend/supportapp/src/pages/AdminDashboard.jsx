@@ -68,7 +68,7 @@ const AdminDashboard = () => {
   const openTicketModal = (ticket) => {
     setSelectedTicket(ticket)
     setSelectedStatus(ticket.status || "OPEN")
-    setStatusComment(ticket.remark || ticket.closeComment || "")
+    setStatusComment(ticket.closeComment || "")
     setError("")
   }
 
@@ -84,16 +84,11 @@ const AdminDashboard = () => {
 
     if (!selectedTicket) return
 
-    if (selectedStatus === "CLOSED" && !statusComment.trim()) {
-      setError("Please add a closing comment before marking the ticket as closed.")
-      return
-    }
-
     try {
       const token = localStorage.getItem("token")
       const closeNote = statusComment.trim()
 
-      await updateTicketStatus(selectedTicket._id, selectedStatus, token, closeNote, closeNote)
+      await updateTicketStatus(selectedTicket._id, selectedStatus, token, closeNote)
 
       setTickets((prev) =>
         prev.map((ticket) =>
@@ -102,7 +97,6 @@ const AdminDashboard = () => {
                 ...ticket,
                 status: selectedStatus,
                 closeComment: selectedStatus === "CLOSED" ? closeNote : "",
-                remark: closeNote || ticket.remark,
               }
             : ticket
         )
@@ -114,7 +108,6 @@ const AdminDashboard = () => {
               ...prev,
               status: selectedStatus,
               closeComment: selectedStatus === "CLOSED" ? closeNote : "",
-              remark: closeNote || prev.remark,
             }
           : null
       )
@@ -183,7 +176,6 @@ const AdminDashboard = () => {
                       <th className="px-4 py-3 font-semibold">Category</th>
                       <th className="px-4 py-3 font-semibold">Status</th>
                       <th className="px-4 py-3 font-semibold">Comment</th>
-                      <th className="px-4 py-3 font-semibold">Remark</th>
                       <th className="px-4 py-3 font-semibold">Actions</th>
                     </tr>
                   </thead>
@@ -215,9 +207,6 @@ const AdminDashboard = () => {
 
                         <td className="px-4 py-3 text-slate-600">
                           {ticket.softwareIssueComment || "No comment"}
-                        </td>
-                        <td className="px-4 py-3 text-slate-600">
-                          {ticket.remark || "No remark"}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-2">
@@ -313,16 +302,6 @@ const AdminDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-semibold text-slate-700">Current Remark</label>
-                        <textarea
-                          value={selectedTicket.remark || "No remark"}
-                          readOnly
-                          rows="2"
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 outline-none"
-                        />
-                      </div>
-
-                      <div>
                         <label className="mb-1 block text-sm font-semibold text-slate-700">Status</label>
                         <select
                           value={selectedStatus}
@@ -334,16 +313,18 @@ const AdminDashboard = () => {
                         </select>
                       </div>
 
-                      <div>
-                        <label className="mb-1 block text-sm font-semibold text-slate-700">Add / Update Remark</label>
-                        <textarea
-                          value={statusComment}
-                          onChange={(e) => setStatusComment(e.target.value)}
-                          rows="3"
-                          placeholder="Write a remark or closing comment here..."
-                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 outline-none focus:border-violet-500"
-                        />
-                      </div>
+                      {selectedStatus !== "CLOSED" && (
+                        <div>
+                          <label className="mb-1 block text-sm font-semibold text-slate-700">Closing Comment</label>
+                          <textarea
+                            value={statusComment}
+                            onChange={(e) => setStatusComment(e.target.value)}
+                            rows="3"
+                            placeholder="Write a closing comment here..."
+                            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 outline-none focus:border-violet-500"
+                          />
+                        </div>
+                      )}
 
                       <div className="flex justify-end gap-3 pt-2">
                         <button

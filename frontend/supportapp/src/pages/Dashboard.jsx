@@ -15,7 +15,6 @@ const initialForm = {
   priority: "HIGH",
   softwareName: "",
   softwareIssueComment: "",
-  remark: "",
 }
 
 const Dashboard = () => {
@@ -95,12 +94,10 @@ const Dashboard = () => {
 
     setEditingTicketId(ticket._id)
     setFormData({
-    
       category: ticket.category || "",
       priority: ticket.priority || "HIGH",
       softwareName: ticket.softwareName || "",
       softwareIssueComment: ticket.softwareIssueComment || "",
-      remark: ticket.remark || "",
     })
     setIsModalOpen(true)
   }
@@ -207,7 +204,6 @@ const Dashboard = () => {
                     <th className="px-4 py-3 font-semibold">Category</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
                     <th className="px-4 py-3 font-semibold">Comment</th>
-                    <th className="px-4 py-3 font-semibold">Remark</th>
                     <th className="px-4 py-3 font-semibold text-center">Action</th>
                   </tr>
                 </thead>
@@ -223,21 +219,24 @@ const Dashboard = () => {
                       <td className="px-4 py-3">{ticket.category || "General"}</td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-1">
-                          <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                              ticket.status === "CLOSED"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-indigo-100 text-indigo-700"
+                            }`}
+                          >
                             {ticket.status || "OPEN"}
                           </span>
-                          {ticket.status === "CLOSED" && (
+                          {ticket.status === "OPEN" && ticket.closeComment && (
                             <span className="rounded-md bg-emerald-100 px-2 py-1 text-[11px] font-medium text-emerald-700">
-                              Close note: {ticket.closeComment || "Ticket was closed."}
+                              Close note: {ticket.closeComment}
                             </span>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-slate-600">
                         {ticket.softwareIssueComment || "No comment"}
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {ticket.remark || "No remark"}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">

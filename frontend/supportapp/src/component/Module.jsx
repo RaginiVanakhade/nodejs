@@ -93,18 +93,6 @@ const Module = ({
             />
           </div>
 
-          {/* <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">Remark</label>
-            <textarea
-              name="remark"
-              value={formData.remark || ""}
-              onChange={handleChange}
-              rows="2"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500 focus:bg-white"
-              placeholder="Add any internal remark or note"
-            />
-          </div> */}
-
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"

@@ -48,21 +48,11 @@ export const getUserDashboardData = async (token) => {
   return data
 }
 
-export const updateTicketStatus = async (
-  ticketId,
-  status,
-  token,
-  closeComment = "",
-  remark = ""
-) => {
+export const updateTicketStatus = async (ticketId, status, token, closeComment = "") => {
   const response = await fetch(`${base_url}/api/tickets/${ticketId}/status`, {
     method: "PATCH",
     headers: getAuthHeader(token),
-    body: JSON.stringify({
-      status,
-      closeComment,
-      remark: remark || closeComment,
-    }),
+    body: JSON.stringify({ status, closeComment }),
   })
 
   const data = await response.json().catch(() => ({}))
@@ -94,12 +84,10 @@ export const createTicket = async (payload, token) => {
     method: "POST",
     headers: getAuthHeader(token),
     body: JSON.stringify({
-    
       category: payload.category,
       priority: payload.priority,
       softwareName: payload.softwareName,
       softwareIssueComment: payload.softwareIssueComment,
-      remark: payload.remark,
     }),
   })
 
@@ -117,12 +105,10 @@ export const updateTicket = async (ticketId, payload, token) => {
     method: "PUT",
     headers: getAuthHeader(token),
     body: JSON.stringify({
-    
       category: payload.category,
       priority: payload.priority,
       softwareName: payload.softwareName,
       softwareIssueComment: payload.softwareIssueComment,
-      remark: payload.remark,
     }),
   })
 
