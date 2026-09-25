@@ -6,7 +6,9 @@ const ticketSchema = new mongoose.Schema(
         
         
         softwareName: { type: String, required: true }, 
-        softwareIssueComment: { type: String, default: "" }, 
+        softwareIssueComment: { type: String, default: "" },
+        remark: { type: String, default: "" },
+        closeComment: { type: String, default: "" },
         
         category: { type: String, default: "General" },
         priority: {

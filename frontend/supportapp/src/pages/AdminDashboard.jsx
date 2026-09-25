@@ -68,7 +68,7 @@ const AdminDashboard = () => {
   const openTicketModal = (ticket) => {
     setSelectedTicket(ticket)
     setSelectedStatus(ticket.status || "OPEN")
-    setStatusComment(ticket.closeComment || "")
+    setStatusComment(ticket.remark || ticket.closeComment || "")
     setError("")
   }
 
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem("token")
       const closeNote = statusComment.trim()
 
-      await updateTicketStatus(selectedTicket._id, selectedStatus, token, closeNote)
+      await updateTicketStatus(selectedTicket._id, selectedStatus, token, closeNote, closeNote)
 
       setTickets((prev) =>
         prev.map((ticket) =>
@@ -102,6 +102,7 @@ const AdminDashboard = () => {
                 ...ticket,
                 status: selectedStatus,
                 closeComment: selectedStatus === "CLOSED" ? closeNote : "",
+                remark: closeNote || ticket.remark,
               }
             : ticket
         )
@@ -113,6 +114,7 @@ const AdminDashboard = () => {
               ...prev,
               status: selectedStatus,
               closeComment: selectedStatus === "CLOSED" ? closeNote : "",
+              remark: closeNote || prev.remark,
             }
           : null
       )
@@ -176,11 +178,12 @@ const AdminDashboard = () => {
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
                       <th className="px-4 py-3 font-semibold">User</th>
-                      <th className="px-4 py-3 font-semibold">Software</th>
+                      <th className="px-4 py-3 font-semibold">Software Name</th>
                       <th className="px-4 py-3 font-semibold">Priority</th>
                       <th className="px-4 py-3 font-semibold">Category</th>
                       <th className="px-4 py-3 font-semibold">Status</th>
-                     
+                      <th className="px-4 py-3 font-semibold">Comment</th>
+                      <th className="px-4 py-3 font-semibold">Remark</th>
                       <th className="px-4 py-3 font-semibold">Actions</th>
                     </tr>
                   </thead>
@@ -210,6 +213,12 @@ const AdminDashboard = () => {
                           </span>
                         </td>
 
+                        <td className="px-4 py-3 text-slate-600">
+                          {ticket.softwareIssueComment || "No comment"}
+                        </td>
+                        <td className="px-4 py-3 text-slate-600">
+                          {ticket.remark || "No remark"}
+                        </td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-2">
                             <button
@@ -219,7 +228,6 @@ const AdminDashboard = () => {
                             >
                               View
                             </button>
-                          
                           </div>
                         </td>
                       </tr>
@@ -295,6 +303,26 @@ const AdminDashboard = () => {
                       </div>
 
                       <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Software Issue Comment</label>
+                        <textarea
+                          value={selectedTicket.softwareIssueComment || "No issue comment"}
+                          readOnly
+                          rows="3"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Current Remark</label>
+                        <textarea
+                          value={selectedTicket.remark || "No remark"}
+                          readOnly
+                          rows="2"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 outline-none"
+                        />
+                      </div>
+
+                      <div>
                         <label className="mb-1 block text-sm font-semibold text-slate-700">Status</label>
                         <select
                           value={selectedStatus}
@@ -307,12 +335,12 @@ const AdminDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-semibold text-slate-700">Close comment</label>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Add / Update Remark</label>
                         <textarea
                           value={statusComment}
                           onChange={(e) => setStatusComment(e.target.value)}
                           rows="3"
-                          placeholder="Write a closing comment here..."
+                          placeholder="Write a remark or closing comment here..."
                           className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 outline-none focus:border-violet-500"
                         />
                       </div>

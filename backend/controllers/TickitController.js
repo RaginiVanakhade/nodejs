@@ -4,14 +4,15 @@ const Ticket = require("../modules/Tickitmodule");
 const createTicket = async (req, res) => {
     try {
         // title 
-        const {  category, priority, softwareName, softwareIssueComment } = req.body;
+        const {  category, priority, softwareName, softwareIssueComment, remark } = req.body;
 
         const newTicket = await Ticket.create({
             
             category,
             priority,
             softwareName,          
-            softwareIssueComment,  
+            softwareIssueComment,
+            remark,
             createdBy: req.user.userId 
         });
 
@@ -61,7 +62,7 @@ const getTicketById = async (req, res) => {
 const updateTicket = async (req, res) => {
     try {
 
-        const {  category, priority, softwareName, softwareIssueComment } = req.body;
+        const {  category, priority, softwareName, softwareIssueComment, remark } = req.body;
         const ticket = await Ticket.findById(req.params.id);
 
         if (!ticket || ticket.isDeleted) {
@@ -81,7 +82,8 @@ const updateTicket = async (req, res) => {
         ticket.category = category || ticket.category;
         ticket.priority = priority || ticket.priority;
         ticket.softwareName = softwareName || ticket.softwareName;                      
-        ticket.softwareIssueComment = softwareIssueComment || ticket.softwareIssueComment; 
+        ticket.softwareIssueComment = softwareIssueComment || ticket.softwareIssueComment;
+        ticket.remark = remark !== undefined ? remark : ticket.remark;
 
         const updatedTicket = await ticket.save();
 
@@ -97,7 +99,7 @@ const updateTicket = async (req, res) => {
 // 5. Change Ticket Status 
 const updateTicketStatus = async (req, res) => {
     try {
-        const { status, closeComment } = req.body;
+        const { status, closeComment, remark } = req.body;
         const ticket = await Ticket.findById(req.params.id);
 
         if (!ticket || ticket.isDeleted) {
@@ -117,14 +119,17 @@ const updateTicketStatus = async (req, res) => {
             });
         }
 
-        if (status === "CLOSED" && !closeComment?.trim()) {
+        const adminRemark = (remark ?? closeComment ?? "").trim();
+
+        if (status === "CLOSED" && !adminRemark) {
             return res.status(400).json({
                 message: "A closing comment is required before a ticket can be marked as closed."
             });
         }
 
         ticket.status = status;
-        ticket.closeComment = status === "CLOSED" ? closeComment?.trim() : "";
+        ticket.closeComment = status === "CLOSED" ? (closeComment || adminRemark).trim() : "";
+        ticket.remark = adminRemark || ticket.remark;
         await ticket.save();
 
         res.status(200).json({

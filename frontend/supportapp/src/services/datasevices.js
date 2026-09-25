@@ -48,11 +48,21 @@ export const getUserDashboardData = async (token) => {
   return data
 }
 
-export const updateTicketStatus = async (ticketId, status, token, closeComment = "") => {
+export const updateTicketStatus = async (
+  ticketId,
+  status,
+  token,
+  closeComment = "",
+  remark = ""
+) => {
   const response = await fetch(`${base_url}/api/tickets/${ticketId}/status`, {
     method: "PATCH",
     headers: getAuthHeader(token),
-    body: JSON.stringify({ status, closeComment }),
+    body: JSON.stringify({
+      status,
+      closeComment,
+      remark: remark || closeComment,
+    }),
   })
 
   const data = await response.json().catch(() => ({}))
@@ -89,6 +99,7 @@ export const createTicket = async (payload, token) => {
       priority: payload.priority,
       softwareName: payload.softwareName,
       softwareIssueComment: payload.softwareIssueComment,
+      remark: payload.remark,
     }),
   })
 
@@ -111,6 +122,7 @@ export const updateTicket = async (ticketId, payload, token) => {
       priority: payload.priority,
       softwareName: payload.softwareName,
       softwareIssueComment: payload.softwareIssueComment,
+      remark: payload.remark,
     }),
   })
 

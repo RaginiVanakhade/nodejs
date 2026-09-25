@@ -15,6 +15,7 @@ const initialForm = {
   priority: "HIGH",
   softwareName: "",
   softwareIssueComment: "",
+  remark: "",
 }
 
 const Dashboard = () => {
@@ -99,6 +100,7 @@ const Dashboard = () => {
       priority: ticket.priority || "HIGH",
       softwareName: ticket.softwareName || "",
       softwareIssueComment: ticket.softwareIssueComment || "",
+      remark: ticket.remark || "",
     })
     setIsModalOpen(true)
   }
@@ -204,8 +206,8 @@ const Dashboard = () => {
                     <th className="px-4 py-3 font-semibold">Priority</th>
                     <th className="px-4 py-3 font-semibold">Category</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
-                    <th>comment</th>
-                
+                    <th className="px-4 py-3 font-semibold">Comment</th>
+                    <th className="px-4 py-3 font-semibold">Remark</th>
                     <th className="px-4 py-3 font-semibold text-center">Action</th>
                   </tr>
                 </thead>
@@ -230,6 +232,12 @@ const Dashboard = () => {
                             </span>
                           )}
                         </div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {ticket.softwareIssueComment || "No comment"}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {ticket.remark || "No remark"}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
