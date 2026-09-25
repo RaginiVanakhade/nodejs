@@ -1,4 +1,13 @@
-const Module = ({ isOpen, onClose, formData, setFormData, onSubmit, loading }) => {
+const Module = ({
+  isOpen,
+  onClose,
+  formData,
+  setFormData,
+  onSubmit,
+  loading,
+  title = "Request Ticket",
+  submitLabel = "Submit Ticket",
+}) => {
   if (!isOpen) return null
 
   const handleChange = (e) => {
@@ -17,7 +26,7 @@ const Module = ({ isOpen, onClose, formData, setFormData, onSubmit, loading }) =
     >
       <div className="w-full max-w-2xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl animate-[fadeIn_0.2s_ease-out]">
         <div className="mb-5 flex items-center justify-between">
-          <h3 className="text-2xl font-bold text-slate-900">Request Ticket</h3>
+          <h3 className="text-2xl font-bold text-slate-900">{title}</h3>
           <button
             type="button"
             onClick={onClose}
@@ -110,7 +119,7 @@ const Module = ({ isOpen, onClose, formData, setFormData, onSubmit, loading }) =
               disabled={loading}
               className="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white disabled:opacity-60"
             >
-              {loading ? "Submitting..." : "Submit Ticket"}
+              {loading ? "Submitting..." : submitLabel}
             </button>
           </div>
         </form>

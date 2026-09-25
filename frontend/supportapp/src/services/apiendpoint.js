@@ -9,3 +9,4 @@ export const adminData = "/api/tickets/all"
 // user endpoints 
 export const createTickit = "/api/tickets"
 export const userData = "/api/tickets/my-tickets"
+export const updateTickit = "/api/tickets/:id"

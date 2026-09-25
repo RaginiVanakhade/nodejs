@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import Navbar from "../component/Navbar"
 import Module from "../component/module"
-import { createTicket, getUserDashboardData } from "../services/datasevices"
+import { createTicket, getUserDashboardData, updateTicket } from "../services/datasevices"
 import Custombtn from "../custom/Custombtn"
 
 const initialForm = {
@@ -19,6 +19,7 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState(initialForm)
   const [submitting, setSubmitting] = useState(false)
+  const [editingTicketId, setEditingTicketId] = useState(null)
 
 //   const fetchUserTickets = async () => {
 //     try {
@@ -74,10 +75,27 @@ const Dashboard = () => {
     }
   }, [])
 
-  const handleOpenModal = () => setIsModalOpen(true)
+  const handleOpenModal = () => {
+    setEditingTicketId(null)
+    setFormData(initialForm)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenEditModal = (ticket) => {
+    setEditingTicketId(ticket._id)
+    setFormData({
+      description: ticket.description || "",
+      category: ticket.category || "",
+      priority: ticket.priority || "HIGH",
+      softwareName: ticket.softwareName || "",
+      softwareIssueComment: ticket.softwareIssueComment || "",
+    })
+    setIsModalOpen(true)
+  }
 
   const handleCloseModal = () => {
     setIsModalOpen(false)
+    setEditingTicketId(null)
     setFormData(initialForm)
   }
 
@@ -89,15 +107,28 @@ const Dashboard = () => {
       setError("")
 
       const token = localStorage.getItem("token")
-      const response = await createTicket(formData, token)
 
-      if (response?.ticket) {
-        setTickets((prev) => [response.ticket, ...prev])
+      if (editingTicketId) {
+        const response = await updateTicket(editingTicketId, formData, token)
+
+        if (response?.ticket) {
+          setTickets((prev) =>
+            prev.map((ticket) => (ticket._id === editingTicketId ? response.ticket : ticket))
+          )
+        }
+      } else {
+        const response = await createTicket(formData, token)
+
+        if (response?.ticket) {
+          setTickets((prev) => [response.ticket, ...prev])
+        }
       }
 
       handleCloseModal()
     } catch (err) {
-      setError(err.message || "Unable to create ticket")
+      setError(
+        err.message || (editingTicketId ? "Unable to update ticket" : "Unable to create ticket")
+      )
     } finally {
       setSubmitting(false)
     }
@@ -150,6 +181,7 @@ const Dashboard = () => {
                     <th className="px-4 py-3 font-semibold">Category</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
                     <th className="px-4 py-3 font-semibold">Description</th>
+                    <th className="px-4 py-3 font-semibold text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -168,6 +200,15 @@ const Dashboard = () => {
                         </span>
                       </td>
                       <td className="max-w-md px-4 py-3 text-slate-600">{ticket.description}</td>
+                      <td className="px-4 py-3 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditModal(ticket)}
+                          className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                        >
+                          Edit
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -184,6 +225,8 @@ const Dashboard = () => {
         setFormData={setFormData}
         onSubmit={handleSubmitTicket}
         loading={submitting}
+        title={editingTicketId ? "Edit Ticket" : "Request Ticket"}
+        submitLabel={editingTicketId ? "Update Ticket" : "Submit Ticket"}
       />
     </div>
   )

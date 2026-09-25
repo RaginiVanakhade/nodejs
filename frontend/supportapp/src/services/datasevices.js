@@ -1,4 +1,4 @@
-import { base_url, adminData, userData, createTickit } from "./apiendpoint"
+import { base_url, adminData, userData, createTickit, updateTickit } from "./apiendpoint"
 
 const getAuthHeader = (token) => {
   if (!token) {
@@ -89,6 +89,28 @@ export const createTicket = async (payload, token) => {
 
   if (!response.ok) {
     throw new Error(data.message || "Failed to create ticket")
+  }
+
+  return data
+}
+
+export const updateTicket = async (ticketId, payload, token) => {
+  const response = await fetch(`${base_url}${updateTickit.replace(":id", ticketId)}`, {
+    method: "PUT",
+    headers: getAuthHeader(token),
+    body: JSON.stringify({
+      description: payload.description,
+      category: payload.category,
+      priority: payload.priority,
+      softwareName: payload.softwareName,
+      softwareIssueComment: payload.softwareIssueComment,
+    }),
+  })
+
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to update ticket")
   }
 
   return data
