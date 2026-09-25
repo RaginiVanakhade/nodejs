@@ -200,10 +200,11 @@ const Dashboard = () => {
               <table className="min-w-full border-collapse text-left text-sm text-slate-700">
                 <thead>
                   <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
-                    <th className="px-4 py-3 font-semibold">Software</th>
+                    <th className="px-4 py-3 font-semibold">Software Name</th>
                     <th className="px-4 py-3 font-semibold">Priority</th>
                     <th className="px-4 py-3 font-semibold">Category</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
+                    <th>comment</th>
                 
                     <th className="px-4 py-3 font-semibold text-center">Action</th>
                   </tr>
