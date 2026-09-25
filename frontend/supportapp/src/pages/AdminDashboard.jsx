@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import Navbar from "../component/Navbar"
-import { deleteTicket, getAdminDashboardData, updateTicketStatus } from "../services/datasevices"
+import {  getAdminDashboardData, updateTicketStatus } from "../services/datasevices"
 
 const AdminDashboard = () => {
   const [tickets, setTickets] = useState([])
@@ -78,20 +78,6 @@ const AdminDashboard = () => {
       )
     } catch (err) {
       setError(err.message || "Unable to update ticket status")
-    }
-  }
-
-  const handleDeleteTicket = async (ticketId) => {
-    const confirmDelete = window.confirm("Delete this ticket?")
-    if (!confirmDelete) return
-
-    try {
-      const token = localStorage.getItem("token")
-      await deleteTicket(ticketId, token)
-      setTickets((prev) => prev.filter((ticket) => ticket._id !== ticketId))
-      setSelectedTicket((prev) => (prev && prev._id === ticketId ? null : prev))
-    } catch (err) {
-      setError(err.message || "Unable to delete ticket")
     }
   }
 
@@ -190,13 +176,7 @@ const AdminDashboard = () => {
                             >
                               View
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteTicket(ticket._id)}
-                              className="rounded-lg bg-red-100 px-2.5 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-200"
-                            >
-                              Delete
-                            </button>
+                          
                           </div>
                         </td>
                       </tr>
