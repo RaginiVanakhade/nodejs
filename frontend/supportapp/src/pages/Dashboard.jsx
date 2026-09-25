@@ -10,7 +10,7 @@ import {
 import Custombtn from "../custom/Custombtn"
 
 const initialForm = {
-  description: "",
+
   category: "",
   priority: "HIGH",
   softwareName: "",
@@ -94,7 +94,7 @@ const Dashboard = () => {
 
     setEditingTicketId(ticket._id)
     setFormData({
-      description: ticket.description || "",
+    
       category: ticket.category || "",
       priority: ticket.priority || "HIGH",
       softwareName: ticket.softwareName || "",
@@ -204,7 +204,7 @@ const Dashboard = () => {
                     <th className="px-4 py-3 font-semibold">Priority</th>
                     <th className="px-4 py-3 font-semibold">Category</th>
                     <th className="px-4 py-3 font-semibold">Status</th>
-                    <th className="px-4 py-3 font-semibold">Description</th>
+                
                     <th className="px-4 py-3 font-semibold text-center">Action</th>
                   </tr>
                 </thead>
@@ -230,7 +230,6 @@ const Dashboard = () => {
                           )}
                         </div>
                       </td>
-                      <td className="max-w-md px-4 py-3 text-slate-600">{ticket.description}</td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
                           {ticket.status !== "CLOSED" && (

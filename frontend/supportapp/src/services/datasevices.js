@@ -84,7 +84,7 @@ export const createTicket = async (payload, token) => {
     method: "POST",
     headers: getAuthHeader(token),
     body: JSON.stringify({
-      description: payload.description,
+    
       category: payload.category,
       priority: payload.priority,
       softwareName: payload.softwareName,
@@ -106,7 +106,7 @@ export const updateTicket = async (ticketId, payload, token) => {
     method: "PUT",
     headers: getAuthHeader(token),
     body: JSON.stringify({
-      description: payload.description,
+    
       category: payload.category,
       priority: payload.priority,
       softwareName: payload.softwareName,

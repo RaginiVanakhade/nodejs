@@ -39,15 +39,15 @@ const AdminDashboard = () => {
       const email = ticket.createdBy?.email?.toLowerCase() || ""
       const software = (ticket.softwareName || "").toLowerCase()
       const status = (ticket.status || "OPEN").toLowerCase()
-      const description = (ticket.description || "").toLowerCase()
+    
 
       return (
         !query ||
         userName.includes(query) ||
         email.includes(query) ||
         software.includes(query) ||
-        status.includes(query) ||
-        description.includes(query)
+        status.includes(query) 
+       
       )
     })
 
@@ -180,7 +180,7 @@ const AdminDashboard = () => {
                       <th className="px-4 py-3 font-semibold">Priority</th>
                       <th className="px-4 py-3 font-semibold">Category</th>
                       <th className="px-4 py-3 font-semibold">Status</th>
-                      <th className="px-4 py-3 font-semibold">Description</th>
+                     
                       <th className="px-4 py-3 font-semibold">Actions</th>
                     </tr>
                   </thead>
@@ -209,7 +209,7 @@ const AdminDashboard = () => {
                             {ticket.status || "OPEN"}
                           </span>
                         </td>
-                        <td className="max-w-md px-4 py-3 text-slate-600">{ticket.description}</td>
+
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-2">
                             <button
@@ -262,13 +262,8 @@ const AdminDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-semibold text-slate-700">Description</label>
-                        <textarea
-                          value={selectedTicket.description || "No description provided"}
-                          readOnly
-                          rows="2"
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700"
-                        />
+                      
+                       
                       </div>
 
                       <div className="grid gap-3 md:grid-cols-2">

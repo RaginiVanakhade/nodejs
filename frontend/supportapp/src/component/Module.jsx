@@ -38,19 +38,6 @@ const Module = ({
 
         <form className="space-y-4" onSubmit={onSubmit}>
           <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              rows="3"
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-800 outline-none focus:border-indigo-500 focus:bg-white"
-              placeholder="Describe your issue"
-              required
-            />
-          </div>
-
-          <div>
             <label className="mb-1 block text-sm font-semibold text-slate-700">Category</label>
             <input
               type="text"
