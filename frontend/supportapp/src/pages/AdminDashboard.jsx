@@ -199,7 +199,13 @@ const AdminDashboard = () => {
                         </td>
                         <td className="px-4 py-3">{ticket.category || "General"}</td>
                         <td className="px-4 py-3">
-                          <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs font-semibold ${
+                              (ticket.status || "OPEN") === "CLOSED"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-indigo-100 text-indigo-700"
+                            }`}
+                          >
                             {ticket.status || "OPEN"}
                           </span>
                         </td>

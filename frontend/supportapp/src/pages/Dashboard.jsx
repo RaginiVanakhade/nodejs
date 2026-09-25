@@ -87,6 +87,11 @@ const Dashboard = () => {
   }
 
   const handleOpenEditModal = (ticket) => {
+    if (ticket.status === "CLOSED") {
+      setError("This ticket is closed and cannot be edited.")
+      return
+    }
+
     setEditingTicketId(ticket._id)
     setFormData({
       description: ticket.description || "",
@@ -228,20 +233,24 @@ const Dashboard = () => {
                       <td className="max-w-md px-4 py-3 text-slate-600">{ticket.description}</td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEditModal(ticket)}
-                            className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteTicket(ticket._id)}
-                            className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                          >
-                            Delete
-                          </button>
+                          {ticket.status !== "CLOSED" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditModal(ticket)}
+                                className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteTicket(ticket._id)}
+                                className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
