@@ -166,7 +166,7 @@ const Dashboard = () => {
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-indigo-600">
             Overview
           </p>
-          <h1 className="text-3xl font-bold text-slate-900">Welcome to your dashboard</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Welcome to your dashboard😎</h1>
           <p className="mt-3 max-w-2xl text-slate-600">
             Manage support requests, track updates, and keep everything organized from one place.
           </p>
