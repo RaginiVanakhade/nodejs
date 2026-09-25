@@ -48,11 +48,11 @@ export const getUserDashboardData = async (token) => {
   return data
 }
 
-export const updateTicketStatus = async (ticketId, status, token) => {
+export const updateTicketStatus = async (ticketId, status, token, closeComment = "") => {
   const response = await fetch(`${base_url}/api/tickets/${ticketId}/status`, {
     method: "PATCH",
     headers: getAuthHeader(token),
-    body: JSON.stringify({ status }),
+    body: JSON.stringify({ status, closeComment }),
   })
 
   const data = await response.json().catch(() => ({}))

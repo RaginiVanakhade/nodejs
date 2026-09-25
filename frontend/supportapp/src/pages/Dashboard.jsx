@@ -214,9 +214,16 @@ const Dashboard = () => {
                       </td>
                       <td className="px-4 py-3">{ticket.category || "General"}</td>
                       <td className="px-4 py-3">
-                        <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
-                          {ticket.status || "OPEN"}
-                        </span>
+                        <div className="flex flex-col gap-1">
+                          <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
+                            {ticket.status || "OPEN"}
+                          </span>
+                          {ticket.status === "CLOSED" && (
+                            <span className="rounded-md bg-emerald-100 px-2 py-1 text-[11px] font-medium text-emerald-700">
+                              Close note: {ticket.closeComment || "Ticket was closed."}
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="max-w-md px-4 py-3 text-slate-600">{ticket.description}</td>
                       <td className="px-4 py-3 text-center">

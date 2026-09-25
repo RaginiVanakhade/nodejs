@@ -97,14 +97,17 @@ const updateTicket = async (req, res) => {
 // 5. Change Ticket Status 
 const updateTicketStatus = async (req, res) => {
     try {
-        const { status } = req.body;
+        const { status, closeComment } = req.body;
         const ticket = await Ticket.findById(req.params.id);
 
         if (!ticket || ticket.isDeleted) {
             return res.status(404).json({ message: "Ticket not found" });
         }
 
-        if (ticket.createdBy.toString() !== req.user.userId) {
+        const isAdmin = req.user.role === "admin";
+        const isOwner = ticket.createdBy.toString() === req.user.userId;
+
+        if (!isAdmin && !isOwner) {
             return res.status(403).json({ message: "Access denied" });
         }
 
@@ -114,7 +117,14 @@ const updateTicketStatus = async (req, res) => {
             });
         }
 
+        if (status === "CLOSED" && !closeComment?.trim()) {
+            return res.status(400).json({
+                message: "A closing comment is required before a ticket can be marked as closed."
+            });
+        }
+
         ticket.status = status;
+        ticket.closeComment = status === "CLOSED" ? closeComment?.trim() : "";
         await ticket.save();
 
         res.status(200).json({

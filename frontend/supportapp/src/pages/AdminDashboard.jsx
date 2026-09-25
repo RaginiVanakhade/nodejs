@@ -9,6 +9,8 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [sortBy, setSortBy] = useState("newest")
   const [selectedTicket, setSelectedTicket] = useState(null)
+  const [statusComment, setStatusComment] = useState("")
+  const [selectedStatus, setSelectedStatus] = useState("OPEN")
 
   useEffect(() => {
     const fetchAdminData = async () => {
@@ -63,19 +65,59 @@ const AdminDashboard = () => {
     })
   }, [searchTerm, sortBy, tickets])
 
-  const handleStatusChange = async (ticketId, nextStatus) => {
+  const openTicketModal = (ticket) => {
+    setSelectedTicket(ticket)
+    setSelectedStatus(ticket.status || "OPEN")
+    setStatusComment(ticket.closeComment || "")
+    setError("")
+  }
+
+  const closeTicketModal = () => {
+    setSelectedTicket(null)
+    setStatusComment("")
+    setSelectedStatus("OPEN")
+    setError("")
+  }
+
+  const handleStatusUpdate = async (e) => {
+    e.preventDefault()
+
+    if (!selectedTicket) return
+
+    if (selectedStatus === "CLOSED" && !statusComment.trim()) {
+      setError("Please add a closing comment before marking the ticket as closed.")
+      return
+    }
+
     try {
       const token = localStorage.getItem("token")
-      await updateTicketStatus(ticketId, nextStatus, token)
+      const closeNote = statusComment.trim()
+
+      await updateTicketStatus(selectedTicket._id, selectedStatus, token, closeNote)
+
       setTickets((prev) =>
         prev.map((ticket) =>
-          ticket._id === ticketId ? { ...ticket, status: nextStatus } : ticket
+          ticket._id === selectedTicket._id
+            ? {
+                ...ticket,
+                status: selectedStatus,
+                closeComment: selectedStatus === "CLOSED" ? closeNote : "",
+              }
+            : ticket
         )
       )
 
       setSelectedTicket((prev) =>
-        prev && prev._id === ticketId ? { ...prev, status: nextStatus } : prev
+        prev
+          ? {
+              ...prev,
+              status: selectedStatus,
+              closeComment: selectedStatus === "CLOSED" ? closeNote : "",
+            }
+          : null
       )
+      setError("")
+      closeTicketModal()
     } catch (err) {
       setError(err.message || "Unable to update ticket status")
     }
@@ -157,21 +199,16 @@ const AdminDashboard = () => {
                         </td>
                         <td className="px-4 py-3">{ticket.category || "General"}</td>
                         <td className="px-4 py-3">
-                          <select
-                            value={ticket.status || "OPEN"}
-                            onChange={(e) => handleStatusChange(ticket._id, e.target.value)}
-                            className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-indigo-700 outline-none focus:border-violet-500"
-                          >
-                            <option value="OPEN">OPEN</option>
-                            <option value="CLOSED">CLOSED</option>
-                          </select>
+                          <span className="rounded-full bg-indigo-100 px-2 py-1 text-xs font-semibold text-indigo-700">
+                            {ticket.status || "OPEN"}
+                          </span>
                         </td>
                         <td className="max-w-md px-4 py-3 text-slate-600">{ticket.description}</td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-2">
                             <button
                               type="button"
-                              onClick={() => setSelectedTicket(ticket)}
+                              onClick={() => openTicketModal(ticket)}
                               className="rounded-lg bg-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-300"
                             >
                               View
@@ -186,29 +223,116 @@ const AdminDashboard = () => {
               </div>
 
               {selectedTicket && (
-                <div className="mt-6 rounded-2xl border border-violet-200 bg-violet-50 p-4">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <h3 className="text-lg font-bold text-slate-900">Ticket Details</h3>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedTicket(null)}
-                      className="text-sm font-semibold text-violet-700"
-                    >
-                      Close
-                    </button>
-                  </div>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+                  <div className="max-h-[88vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
+                    <div className="mb-4 flex items-center justify-between">
+                      <h3 className="text-2xl font-bold text-slate-900">Ticket Details</h3>
+                      <button
+                        type="button"
+                        onClick={closeTicketModal}
+                        className="rounded-full bg-slate-200 px-3 py-1 text-sm font-semibold text-slate-700 transition hover:bg-slate-300"
+                      >
+                        Close
+                      </button>
+                    </div>
 
-                  <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-2">
-                    <div><span className="font-semibold">User:</span> {selectedTicket.createdBy?.name || "Unknown"}</div>
-                    <div><span className="font-semibold">Email:</span> {selectedTicket.createdBy?.email || "N/A"}</div>
-                    <div><span className="font-semibold">Software:</span> {selectedTicket.softwareName || "N/A"}</div>
-                    <div><span className="font-semibold">Priority:</span> {selectedTicket.priority || "Normal"}</div>
-                    <div><span className="font-semibold">Category:</span> {selectedTicket.category || "General"}</div>
-                    <div><span className="font-semibold">Status:</span> {selectedTicket.status || "OPEN"}</div>
+                    <form className="space-y-3" onSubmit={handleStatusUpdate}>
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">User</label>
+                        <input
+                          value={selectedTicket.createdBy?.name || "Unknown"}
+                          readOnly
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Email</label>
+                        <input
+                          value={selectedTicket.createdBy?.email || "N/A"}
+                          readOnly
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Description</label>
+                        <textarea
+                          value={selectedTicket.description || "No description provided"}
+                          readOnly
+                          rows="2"
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700"
+                        />
+                      </div>
+
+                      <div className="grid gap-3 md:grid-cols-2">
+                        <div>
+                          <label className="mb-1 block text-sm font-semibold text-slate-700">Software</label>
+                          <input
+                            value={selectedTicket.softwareName || "N/A"}
+                            readOnly
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700"
+                          />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-sm font-semibold text-slate-700">Priority</label>
+                          <input
+                            value={selectedTicket.priority || "Normal"}
+                            readOnly
+                            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Category</label>
+                        <input
+                          value={selectedTicket.category || "General"}
+                          readOnly
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Status</label>
+                        <select
+                          value={selectedStatus}
+                          onChange={(e) => setSelectedStatus(e.target.value)}
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 outline-none focus:border-violet-500"
+                        >
+                          <option value="OPEN">OPEN</option>
+                          <option value="CLOSED">CLOSED</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">Close comment</label>
+                        <textarea
+                          value={statusComment}
+                          onChange={(e) => setStatusComment(e.target.value)}
+                          rows="3"
+                          placeholder="Write a closing comment here..."
+                          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-700 outline-none focus:border-violet-500"
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-3 pt-2">
+                        <button
+                          type="button"
+                          onClick={closeTicketModal}
+                          className="rounded-xl bg-slate-200 px-4 py-2 font-semibold text-slate-700"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="rounded-xl bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-500"
+                        >
+                          Update Status
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                  <p className="mt-3 text-sm text-slate-700">
-                    <span className="font-semibold">Description:</span> {selectedTicket.description || "No description provided"}
-                  </p>
                 </div>
               )}
             </>
