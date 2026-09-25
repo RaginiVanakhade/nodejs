@@ -4,10 +4,10 @@ const Ticket = require("../modules/Tickitmodule");
 const createTicket = async (req, res) => {
     try {
         // title 
-        const { description, category, priority, softwareName, softwareIssueComment } = req.body;
+        const {  category, priority, softwareName, softwareIssueComment } = req.body;
 
         const newTicket = await Ticket.create({
-            description,
+            
             category,
             priority,
             softwareName,          
@@ -61,7 +61,7 @@ const getTicketById = async (req, res) => {
 const updateTicket = async (req, res) => {
     try {
 
-        const { description, category, priority, softwareName, softwareIssueComment } = req.body;
+        const {  category, priority, softwareName, softwareIssueComment } = req.body;
         const ticket = await Ticket.findById(req.params.id);
 
         if (!ticket || ticket.isDeleted) {
@@ -77,7 +77,7 @@ const updateTicket = async (req, res) => {
         }
 
        
-        ticket.description = description || ticket.description;
+
         ticket.category = category || ticket.category;
         ticket.priority = priority || ticket.priority;
         ticket.softwareName = softwareName || ticket.softwareName;                      

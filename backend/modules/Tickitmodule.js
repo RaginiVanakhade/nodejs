@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const ticketSchema = new mongoose.Schema(
     {
        
-        description: { type: String, required: true }, 
+        
         
         softwareName: { type: String, required: true }, 
         softwareIssueComment: { type: String, default: "" }, 
