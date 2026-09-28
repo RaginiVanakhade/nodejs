@@ -1,15 +1,15 @@
-
 import { NavLink, useNavigate } from "react-router-dom"
+import { logout } from "../utils/auth"
 
 const Navbar = () => {
   const navigate = useNavigate()
+  const role = localStorage.getItem("role")
+  const dashboardPath = role === "admin" ? "/admindashboard" : "/dashboard"
 
-  const handleSignOut = () => {
-    localStorage.removeItem("token")
-
-    localStorage.removeItem("role")
-    navigate("/")
-  }
+const handleSignOut = () => {
+  logout()
+  navigate("/")
+}
 
   return (
     <nav className="border-b border-slate-200 bg-slate-900 text-white shadow-sm">
@@ -20,16 +20,17 @@ const Navbar = () => {
           </div>
           <div>
             <p className="text-lg font-bold tracking-wide">Support Desk</p>
-           
           </div>
         </div>
 
         <div className="flex items-center gap-2 md:gap-6">
           <NavLink
-            to="/dashboard"
+            to={dashboardPath}
             className={({ isActive }) =>
               `rounded-full px-3 py-2 text-sm font-medium transition ${
-                isActive ? "bg-indigo-500 text-white" : "text-slate-200 hover:bg-slate-800 hover:text-white"
+                isActive
+                  ? "bg-indigo-500 text-white"
+                  : "text-slate-200 hover:bg-slate-800 hover:text-white"
               }`
             }
           >

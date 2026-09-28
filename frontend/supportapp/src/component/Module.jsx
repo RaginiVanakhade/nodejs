@@ -1,3 +1,5 @@
+import CustomBtn from "../custom/Custombtn"
+
 const Module = ({
   isOpen,
   onClose,
@@ -9,6 +11,8 @@ const Module = ({
   submitLabel = "Submit Ticket",
 }) => {
   if (!isOpen) return null
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -81,7 +85,9 @@ const Module = ({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-semibold text-slate-700">Software Issue Comment</label>
+            <label className="mb-1 block text-sm font-semibold text-slate-700">
+              Software Issue Comment
+            </label>
             <textarea
               name="softwareIssueComment"
               value={formData.softwareIssueComment}
@@ -94,20 +100,18 @@ const Module = ({
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
+            <CustomBtn
               type="button"
               onClick={onClose}
-              className="rounded-xl bg-slate-200 px-4 py-2 font-semibold text-slate-700"
-            >
-              Cancel
-            </button>
-            <button
+              text="Cancel"
+              className="rounded-xl bg-slate-200 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-300"
+            />
+            <CustomBtn
               type="submit"
               disabled={loading}
-              className="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white disabled:opacity-60"
-            >
-              {loading ? "Submitting..." : submitLabel}
-            </button>
+              text={loading ? "Submitting..." : submitLabel}
+              className="rounded-xl bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-500 disabled:opacity-60"
+            />
           </div>
         </form>
       </div>
@@ -116,4 +120,3 @@ const Module = ({
 }
 
 export default Module
-

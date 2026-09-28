@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import Navbar from "../component/Navbar"
-import {  getAdminDashboardData, updateTicketStatus } from "../services/datasevices"
+import { getAdminDashboardData, updateTicketStatus } from "../services/datasevices"
+import TicketTable from "../component/TicketTable"
+import CustomBtn from "../custom/Custombtn"
 
 const ROWS_PER_PAGE = 5
 
@@ -14,13 +16,13 @@ const AdminDashboard = () => {
   const [statusComment, setStatusComment] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("OPEN")
   const [currentPage, setCurrentPage] = useState(1)
+  const [updating, setUpdating] = useState(false)
 
   useEffect(() => {
     const fetchAdminData = async () => {
       try {
         setLoading(true)
         setError("")
-
         const token = localStorage.getItem("token")
         const response = await getAdminDashboardData(token)
         setTickets(response.tickets || [])
@@ -30,7 +32,6 @@ const AdminDashboard = () => {
         setLoading(false)
       }
     }
-
     fetchAdminData()
   }, [])
 
@@ -42,15 +43,13 @@ const AdminDashboard = () => {
       const email = ticket.createdBy?.email?.toLowerCase() || ""
       const software = (ticket.softwareName || "").toLowerCase()
       const status = (ticket.status || "OPEN").toLowerCase()
-    
 
       return (
         !query ||
         userName.includes(query) ||
         email.includes(query) ||
         software.includes(query) ||
-        status.includes(query) 
-       
+        status.includes(query)
       )
     })
 
@@ -59,11 +58,9 @@ const AdminDashboard = () => {
         const priorityOrder = { HIGH: 3, MEDIUM: 2, LOW: 1 }
         return (priorityOrder[b.priority] || 0) - (priorityOrder[a.priority] || 0)
       }
-
       if (sortBy === "status") {
         return (a.status || "OPEN").localeCompare(b.status || "OPEN")
       }
-
       return new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
     })
   }, [searchTerm, sortBy, tickets])
@@ -91,40 +88,33 @@ const AdminDashboard = () => {
 
   const handleStatusUpdate = async (e) => {
     e.preventDefault()
-
     if (!selectedTicket) return
 
     try {
+      setUpdating(true)
       const token = localStorage.getItem("token")
       const closeNote = statusComment.trim()
 
       await updateTicketStatus(selectedTicket._id, selectedStatus, token, closeNote)
 
       setTickets((prev) =>
-        prev.map((ticket) =>
-          ticket._id === selectedTicket._id
+        prev.map((t) =>
+          t._id === selectedTicket._id
             ? {
-                ...ticket,
+                ...t,
                 status: selectedStatus,
                 closeComment: selectedStatus === "CLOSED" ? closeNote : "",
               }
-            : ticket
+            : t
         )
       )
 
-      setSelectedTicket((prev) =>
-        prev
-          ? {
-              ...prev,
-              status: selectedStatus,
-              closeComment: selectedStatus === "CLOSED" ? closeNote : "",
-            }
-          : null
-      )
       setError("")
       closeTicketModal()
     } catch (err) {
       setError(err.message || "Unable to update ticket status")
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -137,7 +127,9 @@ const AdminDashboard = () => {
           <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-600">
             Admin Overview
           </p>
-          <h1 className="text-3xl font-bold text-slate-900">Welcome to the admin dashboard</h1>
+          <h1 className="text-3xl font-bold text-slate-900">
+            Welcome to the admin dashboard
+          </h1>
           <p className="mt-3 max-w-2xl text-slate-600">
             Review tickets, manage team activity, and monitor support performance from one place.
           </p>
@@ -182,64 +174,7 @@ const AdminDashboard = () => {
             <p className="text-slate-600">No tickets found.</p>
           ) : (
             <>
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse text-left text-sm text-slate-700">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
-                      <th className="px-4 py-3 font-semibold">User</th>
-                      <th className="px-4 py-3 font-semibold">Software Name</th>
-                      <th className="px-4 py-3 font-semibold">Priority</th>
-                      <th className="px-4 py-3 font-semibold">Category</th>
-                      <th className="px-4 py-3 font-semibold">Status</th>
-                      <th className="px-4 py-3 font-semibold">Comment</th>
-                      <th className="px-4 py-3 font-semibold">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedTickets.map((ticket) => (
-                      <tr key={ticket._id} className="border-b border-slate-200 hover:bg-slate-50">
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-slate-900">{ticket.createdBy?.name || "Unknown user"}</div>
-                          <div className="text-xs text-slate-500">{ticket.createdBy?.email || "N/A"}</div>
-                        </td>
-                        <td className="px-4 py-3">{ticket.softwareName || "Ticket"}</td>
-                        <td className="px-4 py-3">
-                          <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
-                            {ticket.priority || "Normal"}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">{ticket.category || "General"}</td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                              (ticket.status || "OPEN") === "CLOSED"
-                                ? "bg-emerald-100 text-emerald-700"
-                                : "bg-indigo-100 text-indigo-700"
-                            }`}
-                          >
-                            {ticket.status || "OPEN"}
-                          </span>
-                        </td>
-
-                        <td className="px-4 py-3 text-slate-600">
-                          {ticket.softwareIssueComment || "No comment"}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => openTicketModal(ticket)}
-                              className="rounded-lg bg-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-300"
-                            >
-                              View
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <TicketTable tickets={paginatedTickets} isAdmin onView={openTicketModal} />
 
               {filteredTickets.length > ROWS_PER_PAGE && (
                 <div className="mt-5 flex flex-col items-center justify-between gap-3 border-t border-slate-200 pt-4 sm:flex-row">
@@ -250,7 +185,7 @@ const AdminDashboard = () => {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                       disabled={safeCurrentPage === 1}
                       className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -259,7 +194,7 @@ const AdminDashboard = () => {
 
                     <button
                       type="button"
-                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                       disabled={safeCurrentPage === totalPages}
                       className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -302,11 +237,6 @@ const AdminDashboard = () => {
                         />
                       </div>
 
-                      <div>
-                      
-                       
-                      </div>
-
                       <div className="grid gap-3 md:grid-cols-2">
                         <div>
                           <label className="mb-1 block text-sm font-semibold text-slate-700">Software</label>
@@ -336,7 +266,9 @@ const AdminDashboard = () => {
                       </div>
 
                       <div>
-                        <label className="mb-1 block text-sm font-semibold text-slate-700">Software Issue Comment</label>
+                        <label className="mb-1 block text-sm font-semibold text-slate-700">
+                          Software Issue Comment
+                        </label>
                         <textarea
                           value={selectedTicket.softwareIssueComment || "No issue comment"}
                           readOnly
@@ -357,9 +289,12 @@ const AdminDashboard = () => {
                         </select>
                       </div>
 
-                      {selectedStatus !== "CLOSED" && (
+                 
+                      {selectedStatus === "CLOSED" && (
                         <div>
-                          <label className="mb-1 block text-sm font-semibold text-slate-700">Closing Comment</label>
+                          <label className="mb-1 block text-sm font-semibold text-slate-700">
+                            Closing Comment
+                          </label>
                           <textarea
                             value={statusComment}
                             onChange={(e) => setStatusComment(e.target.value)}
@@ -371,19 +306,18 @@ const AdminDashboard = () => {
                       )}
 
                       <div className="flex justify-end gap-3 pt-2">
-                        <button
+                        <CustomBtn
                           type="button"
                           onClick={closeTicketModal}
-                          className="rounded-xl bg-slate-200 px-4 py-2 font-semibold text-slate-700"
-                        >
-                          Cancel
-                        </button>
-                        <button
+                          text="Cancel"
+                          className="rounded-xl bg-slate-200 px-4 py-2 font-semibold text-slate-700 hover:bg-slate-300"
+                        />
+                        <CustomBtn
                           type="submit"
-                          className="rounded-xl bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-500"
-                        >
-                          Update Status
-                        </button>
+                          disabled={updating}
+                          text={updating ? "Updating..." : "Update Status"}
+                          className="rounded-xl bg-violet-600 px-4 py-2 font-semibold text-white hover:bg-violet-500 disabled:opacity-60"
+                        />
                       </div>
                     </form>
                   </div>

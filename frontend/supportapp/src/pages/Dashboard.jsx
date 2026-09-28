@@ -1,84 +1,26 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import Navbar from "../component/Navbar"
-import Module from "../component/module"
-import {
-  createTicket,
-  deleteTicket,
-  getUserDashboardData,
-  updateTicket,
-} from "../services/datasevices"
+import Module from "../component/Module"
+import { createTicket, deleteTicket, updateTicket } from "../services/datasevices"
 import Custombtn from "../custom/Custombtn"
+import useTickets from "../hooks/useTickets"
+import TicketTable from "../component/TicketTable"
 
-const initialForm = {
+const getTicketFormData = (ticket = {}) => ({
+  category: ticket.category || "",
+  priority: ticket.priority || "HIGH",
+  softwareName: ticket.softwareName || "",
+  softwareIssueComment: ticket.softwareIssueComment || "",
+})
 
-  category: "",
-  priority: "HIGH",
-  softwareName: "",
-  softwareIssueComment: "",
-}
+const initialForm = getTicketFormData()
 
 const Dashboard = () => {
-  const [tickets, setTickets] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const { tickets, setTickets, loading, error, setError } = useTickets()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState(initialForm)
   const [submitting, setSubmitting] = useState(false)
   const [editingTicketId, setEditingTicketId] = useState(null)
-
-//   const fetchUserTickets = async () => {
-//     try {
-//       setLoading(true)
-//       setError("")
-
-//       const token = localStorage.getItem("token")
-//       if (!token) {
-//         throw new Error("Authentication required")
-//       }
-
-//       const response = await getUserDashboardData(token)
-//       setTickets(response.tickets || [])
-//     } catch (err) {
-//       setError(err.message || "Unable to fetch your tickets")
-//     } finally {
-//       setLoading(false)
-//     }
-//   }
-
-  useEffect(() => {
-    let isMounted = true
-
-    const loadTickets = async () => {
-      try {
-        setLoading(true)
-        setError("")
-
-        const token = localStorage.getItem("token")
-        if (!token) {
-          throw new Error("Authentication required")
-        }
-
-        const response = await getUserDashboardData(token)
-        if (isMounted) {
-          setTickets(response.tickets || [])
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err.message || "Unable to fetch your tickets")
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    loadTickets()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   const handleOpenModal = () => {
     setEditingTicketId(null)
@@ -91,14 +33,8 @@ const Dashboard = () => {
       setError("This ticket is closed and cannot be edited.")
       return
     }
-
     setEditingTicketId(ticket._id)
-    setFormData({
-      category: ticket.category || "",
-      priority: ticket.priority || "HIGH",
-      softwareName: ticket.softwareName || "",
-      softwareIssueComment: ticket.softwareIssueComment || "",
-    })
+    setFormData(getTicketFormData(ticket))
     setIsModalOpen(true)
   }
 
@@ -109,13 +45,11 @@ const Dashboard = () => {
   }
 
   const handleDeleteTicket = async (ticketId) => {
-    const confirmDelete = window.confirm("Delete this ticket?")
-    if (!confirmDelete) return
-
+    if (!window.confirm("Delete this ticket?")) return
     try {
       const token = localStorage.getItem("token")
       await deleteTicket(ticketId, token)
-      setTickets((prev) => prev.filter((ticket) => ticket._id !== ticketId))
+      setTickets((prev) => prev.filter((t) => t._id !== ticketId))
       setError("")
     } catch (err) {
       setError(err.message || "Unable to delete ticket")
@@ -124,33 +58,29 @@ const Dashboard = () => {
 
   const handleSubmitTicket = async (e) => {
     e.preventDefault()
-
     try {
       setSubmitting(true)
       setError("")
-
       const token = localStorage.getItem("token")
 
       if (editingTicketId) {
         const response = await updateTicket(editingTicketId, formData, token)
-
         if (response?.ticket) {
           setTickets((prev) =>
-            prev.map((ticket) => (ticket._id === editingTicketId ? response.ticket : ticket))
+            prev.map((t) => (t._id === editingTicketId ? response.ticket : t))
           )
         }
       } else {
         const response = await createTicket(formData, token)
-
         if (response?.ticket) {
           setTickets((prev) => [response.ticket, ...prev])
         }
       }
-
       handleCloseModal()
     } catch (err) {
       setError(
-        err.message || (editingTicketId ? "Unable to update ticket" : "Unable to create ticket")
+        err.message ||
+          (editingTicketId ? "Unable to update ticket" : "Unable to create ticket")
       )
     } finally {
       setSubmitting(false)
@@ -195,76 +125,11 @@ const Dashboard = () => {
           ) : tickets.length === 0 ? (
             <p className="text-slate-600">You do not have any tickets yet.</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border-collapse text-left text-sm text-slate-700">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-600">
-                    <th className="px-4 py-3 font-semibold">Software Name</th>
-                    <th className="px-4 py-3 font-semibold">Priority</th>
-                    <th className="px-4 py-3 font-semibold">Category</th>
-                    <th className="px-4 py-3 font-semibold">Status</th>
-                    <th className="px-4 py-3 font-semibold">Comment</th>
-                    <th className="px-4 py-3 font-semibold text-center">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tickets.map((ticket) => (
-                    <tr key={ticket._id} className="border-b border-slate-200 hover:bg-slate-50">
-                      <td className="px-4 py-3 font-medium text-slate-900">{ticket.softwareName || "Ticket"}</td>
-                      <td className="px-4 py-3">
-                        <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
-                          {ticket.priority || "Normal"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">{ticket.category || "General"}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-col gap-1">
-                          <span
-                            className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                              ticket.status === "CLOSED"
-                                ? "bg-emerald-100 text-emerald-700"
-                                : "bg-indigo-100 text-indigo-700"
-                            }`}
-                          >
-                            {ticket.status || "OPEN"}
-                          </span>
-                          {ticket.status === "OPEN" && ticket.closeComment && (
-                            <span className="rounded-md bg-emerald-100 px-2 py-1 text-[11px] font-medium text-emerald-700">
-                              Close note: {ticket.closeComment}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-slate-600">
-                        {ticket.softwareIssueComment || "No comment"}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          {ticket.status !== "CLOSED" && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => handleOpenEditModal(ticket)}
-                                className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteTicket(ticket._id)}
-                                className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                              >
-                                Delete
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <TicketTable
+              tickets={tickets}
+              onEdit={handleOpenEditModal}
+              onDelete={handleDeleteTicket}
+            />
           )}
         </div>
       </main>

@@ -2,12 +2,13 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { loginUser } from "../../services/authServices"
 import CustomBtn from "../../custom/Custombtn"
+import { decodeToken } from "../../utils/auth"
+
+
+
 const Login = () => {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  })
+  const [formData, setFormData] = useState({ email: "", password: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -23,7 +24,10 @@ const Login = () => {
 
     try {
       const response = await loginUser(formData)
-      const userRole = response?.user?.role || JSON.parse(atob((response.token || '').split('.')[1].replace(/-/g, '+').replace(/_/g, '/')))?.role
+
+      // Prefer role from response.user, fallback to decoded token
+      const payload = decodeToken(response?.token)
+      const userRole = response?.user?.role || payload?.role
 
       if (!response?.token || !userRole) {
         throw new Error("Login failed. Invalid token or role.")
@@ -33,14 +37,9 @@ const Login = () => {
       localStorage.setItem("token", response.token)
       localStorage.setItem("role", userRole)
 
-      if (userRole === "admin") {
-        navigate("/admindashboard")
-        return
-      }
-
-      navigate("/dashboard")
+      navigate(userRole === "admin" ? "/admindashboard" : "/dashboard")
     } catch (err) {
-      setError(err.message)
+      setError(err.message || "Login failed")
     } finally {
       setLoading(false)
     }
@@ -95,15 +94,13 @@ const Login = () => {
           <CustomBtn
             type="submit"
             disabled={loading}
-           text= {loading ? "Logging in..." : "Login"}
+            text={loading ? "Logging in..." : "Login"}
             className="w-full rounded-2xl cursor-pointer bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-indigo-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-200 disabled:cursor-not-allowed disabled:opacity-70"
           />
-           
-          
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600">
-          Don’t have an account?{' '}
+          Don’t have an account?{" "}
           <CustomBtn
             type="button"
             className="font-semibold text-indigo-600 transition hover:text-indigo-700 cursor-pointer"

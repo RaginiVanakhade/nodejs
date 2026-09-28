@@ -5,48 +5,7 @@ import Login from './component/auth/Login'
 import Register from './component/auth/register'
 import Dashboard from './pages/Dashboard'
 import AdminDashboard from './pages/AdminDashboard'
-
-const decodeToken = (token) => {
-  if (!token) return null
-
-  try {
-    const base64Url = token.split('.')[1]
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((char) => `%${`00${char.charCodeAt(0).toString(16)}`.slice(-2)}`)
-        .join('')
-    )
-
-    return JSON.parse(jsonPayload)
-  } catch (error) {
-    console.log(error)
-    return null
-  }
-}
-
-const getAuthState = () => {
-  const token = localStorage.getItem('token')
-  if (!token) return { isAuthenticated: false, role: null }
-
-  const payload = decodeToken(token)
-  if (!payload) {
-    localStorage.removeItem('token')
-    localStorage.removeItem('role')
-    return { isAuthenticated: false, role: null }
-  }
-
-  const isValid = !payload.exp || Date.now() < payload.exp * 1000
-  if (!isValid) {
-    localStorage.removeItem('token')
-    localStorage.removeItem('role')
-    return { isAuthenticated: false, role: null }
-  }
-
-  const userRole = payload.role || localStorage.getItem('role')
-  return { isAuthenticated: true, role: userRole }
-}
+import { getAuthState } from "./utils/auth"
 
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const { isAuthenticated, role: currentRole } = getAuthState()

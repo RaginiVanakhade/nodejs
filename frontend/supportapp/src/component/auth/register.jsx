@@ -1,14 +1,11 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { registerUser } from "../../services/authServices"
+import CustomBtn from "../../custom/Custombtn"
 
 const Register = () => {
   const navigate = useNavigate()
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  })
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -27,7 +24,7 @@ const Register = () => {
       alert(response.message || "User registered successfully")
       navigate("/")
     } catch (err) {
-      setError(err.message)
+      setError(err.message || "Registration failed")
     } finally {
       setLoading(false)
     }
@@ -95,24 +92,22 @@ const Register = () => {
 
           {error && <p className="text-sm font-medium text-red-600">{error}</p>}
 
-          <button
+          <CustomBtn
             type="submit"
             disabled={loading}
+            text={loading ? "Registering..." : "Register Here"}
             className="w-full rounded-2xl cursor-pointer bg-gradient-to-r from-violet-600 via-indigo-600 to-blue-600 px-4 py-3 text-base font-semibold text-white shadow-lg shadow-violet-200 transition duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-violet-200 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {loading ? "Registering..." : "Register Here"}
-          </button>
+          />
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600">
-          Already have an account?{' '}
-          <button
+          Already have an account?{" "}
+          <CustomBtn
             type="button"
             className="font-semibold text-violet-600 transition hover:text-violet-700 cursor-pointer"
             onClick={() => navigate("/")}
-          >
-            Login here
-          </button>
+            text="Login here"
+          />
         </p>
       </div>
     </div>
