@@ -4,7 +4,7 @@ import Module from "../component/Module"
 import { createTicket, deleteTicket, updateTicket } from "../services/datasevices"
 import Custombtn from "../custom/Custombtn"
 import useTickets from "../hooks/useTickets"
-import TicketTable from "../component/TicketTable"
+import TicketTable from "../custom/TicketTable"
 
 const getTicketFormData = (ticket = {}) => ({
   category: ticket.category || "",

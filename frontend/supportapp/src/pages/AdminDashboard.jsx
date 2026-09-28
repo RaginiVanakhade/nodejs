@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Navbar from "../component/Navbar"
 import { getAdminDashboardData, updateTicketStatus } from "../services/datasevices"
-import TicketTable from "../component/TicketTable"
+import TicketTable from "../custom/TicketTable"
 import CustomBtn from "../custom/Custombtn"
 
 const ROWS_PER_PAGE = 5
